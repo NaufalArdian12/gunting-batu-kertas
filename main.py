@@ -26,20 +26,30 @@ while True:
     result = hands.process(rgb)
 
     finger_count = 0
+    
 
     if result.multi_hand_landmarks:
+        handedness = result.multi_handedness[0].classification[0].label  # "Left" atau "Right"
+       
         for hand_landmarks in result.multi_hand_landmarks:
             mp_draw.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
 
             landmarks = hand_landmarks.landmark
 
             fingers = []
+            
+             # Jempol → arah x tergantung tangan
+            if handedness == "Right":
+                if landmarks[4].x < landmarks[3].x:
+                    fingers.append(1)
+                else:
+                    fingers.append(0)
+            else:  # tangan kiri
+                if landmarks[4].x > landmarks[3].x:
+                    fingers.append(1)
+                else:
+                    fingers.append(0)
 
-            # Thumb
-            if landmarks[tip_ids[0]].x < landmarks[tip_ids[0] - 1].x:
-                fingers.append(1)
-            else:
-                fingers.append(0)
 
             # Jari telunjuk - kelingking
             for id in range(1, 5):
